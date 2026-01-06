@@ -1,0 +1,81 @@
+# Battery Voltage Forecasting Project
+
+## Project Overview
+This is a PyTorch-based time-series forecasting system for predicting battery voltage decrease over time using LSTM/GRU neural networks. The model uses historical voltage and temperature data from lithium-ion batteries.
+
+## Project Structure
+- `battery_dataset.py`: Custom PyTorch Dataset class (`BatteryTimeSeriesDataset`) for data loading
+- `voltage_forecast_model.py`: LSTM/GRU model implementations (`VoltageForecastLSTM`, `VoltageForecastGRU`)
+- `train.py`: Training script with MLflow integration, early stopping, and checkpointing
+- `forecast.py`: Script for generating voltage forecasts
+- `evaluate.py`: Model evaluation and visualization script
+- `optimize.py`: Hyperparameter optimization using Optuna
+- `device_utils.py`: GPU compatibility utilities
+- `data/`: Contains CSV and NumPy data files
+
+## Key Architecture Details
+
+### Data Processing
+- Missing temperature values (-1) are filled using forward/backward fill within each battery's time series
+- Features are standardized using StandardScaler
+- Data is organized into sequences of fixed length for time-series learning
+- Train/validation split is done at battery level (not sequence level) to avoid data leakage
+
+### Model Architecture
+- Input: Sequences of voltage (and optionally temperature)
+- LSTM/GRU Layers: 2-3 layers with configurable hidden size
+- Fully Connected Layers: 3-layer MLP for final prediction
+- Output: Single value representing forecasted voltage
+
+### Training Features
+- Early stopping to prevent overfitting
+- Gradient clipping for training stability
+- MLflow experiment tracking (hyperparameters, metrics, artifacts)
+- Model checkpointing with scalers for proper denormalization
+
+## Data Format
+CSV file (`data/VoltTemp.csv`) should have columns:
+- `ModuleId`: Battery identifier
+- `SeriesId`: Time interval identifier (sequential within each battery)
+- `CurrentVoltage`: Voltage values (target variable)
+- `CurrentTemperature`: Temperature values (feature)
+
+## Development Guidelines
+
+### Code Style
+- Use type hints for function parameters and return types
+- Follow PEP 8 style guidelines
+- Use descriptive variable names
+- Add docstrings to classes and functions
+
+### When Adding Features
+- Maintain backward compatibility with existing model checkpoints
+- Update README.md with new usage examples
+- Add MLflow tracking for new hyperparameters/metrics
+- Ensure proper device handling (CPU/GPU) via `device_utils.get_compatible_device()`
+
+### Testing Considerations
+- Test with `--max_samples` flag for faster iteration
+- Use `--device cpu` to test CPU compatibility
+- Verify data leakage prevention (battery-level splitting)
+- Check that scalers are properly saved/loaded with models
+
+### Common Tasks
+- Training: `python train.py --csv_path data/VoltTemp.csv --output_dir ./models`
+- Forecasting: `python forecast.py --model_path ./models/best_model.pth --csv_path data/VoltTemp.csv`
+- Evaluation: `python evaluate.py --model_path ./models/best_model.pth --csv_path data/VoltTemp.csv`
+- Optimization: `python optimize.py --csv_path data/VoltTemp.csv --n_trials 50`
+
+## Dependencies
+- PyTorch 2.0+ (with CUDA support if available)
+- NumPy, Pandas, Scikit-learn
+- Matplotlib, Seaborn, tqdm
+- MLflow 2.0+ (for experiment tracking)
+- Optuna 3.0+ (for hyperparameter optimization, optional)
+
+## Notes
+- GPU compatibility: PyTorch 2.0+ requires CUDA compute capability sm_70 or higher
+- Model files (`.pth`) contain weights, scalers, and configuration
+- MLflow artifacts are stored in `mlruns/` directory
+- Training logs are saved to `models/training.log`
+
