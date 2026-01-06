@@ -25,7 +25,7 @@ class TestModelLoading:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -57,7 +57,7 @@ class TestForecasting:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -92,7 +92,7 @@ class TestForecasting:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -129,7 +129,7 @@ class TestForecasting:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -167,7 +167,7 @@ class TestForecasting:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -197,7 +197,7 @@ class TestForecasting:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )

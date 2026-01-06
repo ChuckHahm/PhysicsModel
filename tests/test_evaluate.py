@@ -70,7 +70,7 @@ class TestModelEvaluation:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -83,7 +83,7 @@ class TestModelEvaluation:
             model_path=str(model_path),
             csv_path=sample_csv_path,
             sequence_length=10,
-            max_samples=20,
+            max_samples=10000,
             device='cpu'
         )
         timer.checkpoint("Model evaluation")
@@ -106,7 +106,7 @@ class TestModelEvaluation:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -119,7 +119,7 @@ class TestModelEvaluation:
             csv_path=sample_csv_path,
             use_temperature=False,
             sequence_length=10,
-            max_samples=20,
+            max_samples=10000,
             device='cpu'
         )
         timer.checkpoint("Evaluation")
@@ -143,7 +143,7 @@ class TestEvaluationReport:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -157,7 +157,7 @@ class TestEvaluationReport:
             csv_path=sample_csv_path,
             output_dir=temp_output_dir,
             sequence_length=10,
-            max_samples=20,
+            max_samples=10000,
             device='cpu'
         )
         timer.checkpoint("Report creation")
@@ -187,7 +187,7 @@ class TestEvaluationReport:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -200,7 +200,7 @@ class TestEvaluationReport:
             csv_path=sample_csv_path,
             output_dir=temp_output_dir,
             sequence_length=10,
-            max_samples=20,
+            max_samples=10000,
             device='cpu'
         )
         timer.checkpoint("Report creation")

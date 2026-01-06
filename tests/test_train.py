@@ -24,7 +24,7 @@ class TestTrainingFunctions:
             csv_path=sample_csv_path,
             sequence_length=10,
             train=True,
-            max_samples=20
+            max_samples=10000
         )
         timer.checkpoint("Dataset creation")
         
@@ -58,7 +58,7 @@ class TestTrainingFunctions:
             csv_path=sample_csv_path,
             sequence_length=10,
             train=False,
-            max_samples=20
+            max_samples=10000
         )
         timer.checkpoint("Dataset creation")
         
@@ -93,7 +93,7 @@ class TestTrainingPipeline:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,  # Disable MLflow for faster tests
             device='cpu'
         )
@@ -124,7 +124,7 @@ class TestTrainingPipeline:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -148,7 +148,7 @@ class TestTrainingPipeline:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -172,7 +172,7 @@ class TestTrainingPipeline:
             batch_size=4,
             num_epochs=100,  # Many epochs
             patience=2,  # Stop after 2 epochs without improvement
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -193,7 +193,7 @@ class TestTrainingPipeline:
             batch_size=4,
             num_epochs=2,
             patience=5,
-            max_samples=50,
+            max_samples=10000,
             use_mlflow=False,
             device='cpu'
         )
@@ -226,7 +226,7 @@ class TestTrainingPipeline:
                 batch_size=4,
                 num_epochs=2,
                 patience=5,
-                max_samples=50,
+                max_samples=10000,
                 use_mlflow=False,
                 device='cpu',
                 **config
