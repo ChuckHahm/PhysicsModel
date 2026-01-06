@@ -63,3 +63,9 @@ Thumbs.db
 *.bak
 *.cache
 
+# Test outputs
+.pytest_cache/
+test_outputs/
+*.pyc
+__pycache__/
+
