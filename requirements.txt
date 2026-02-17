@@ -1,0 +1,2 @@
+# PhysicsModel has no external dependencies
+# Requires Python 3.6 or higher
