@@ -58,6 +58,11 @@ Thumbs.db
 .env
 .env.local
 
+# Data files
+*.npy
+*.csv
+*.rpt
+
 # Temporary files
 *.tmp
 *.bak
