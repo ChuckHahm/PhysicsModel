@@ -885,10 +885,36 @@ def main():
     parser.add_argument(
         "--device", type=str, default=None, help="Device (cuda/cpu/auto)"
     )
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        default=False,
+        help="Fast mode for testing: 200 batteries, 60 months, 10 epochs, "
+        "hidden=32, 1 LSTM layer, batch=128, 20 forecast samples",
+    )
     args = parser.parse_args()
 
+    # ── Fast mode overrides ──────────────────────────────────────────────
+    if args.fast:
+        FAST_DEFAULTS = {
+            "n_batteries": 200,
+            "n_months": 60,
+            "num_epochs": 10,
+            "patience": 5,
+            "hidden_size": 32,
+            "num_layers": 1,
+            "batch_size": 128,
+            "forecast_samples": 20,
+            "max_samples": 10000,
+        }
+        for key, val in FAST_DEFAULTS.items():
+            # Only override if user didn't explicitly set the flag
+            if getattr(args, key) == parser.get_default(key):
+                setattr(args, key, val)
+
     print("=" * 72)
-    print("  Li-SOCl2 Voltage Forecasting — LSTM + Entity Embeddings")
+    mode_tag = " [FAST MODE]" if args.fast else ""
+    print(f"  Li-SOCl2 Voltage Forecasting — LSTM + Entity Embeddings{mode_tag}")
     print("=" * 72)
 
     # ── 1. Generate data ─────────────────────────────────────────────────
