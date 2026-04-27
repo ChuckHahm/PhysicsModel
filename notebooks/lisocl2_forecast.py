@@ -888,7 +888,7 @@ def main():
     parser.add_argument(
         "--fast",
         action="store_true",
-        default=True,
+        default=False,
         help="Fast mode for testing: 200 batteries, 60 months, 10 epochs, "
         "hidden=32, 1 LSTM layer, batch=128, 20 forecast samples",
     )
