@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DataLoader → Dataset call graph</title>
+<style>
+:root {
+  --bg:#0d0f14; --surface:#161921; --border:#252a35;
+  --text:#c8d0e0; --muted:#5a6480; --faint:#2a3040;
+  --purple:#a78bfa; --purple-bg:rgba(167,139,250,.13); --purple-b:rgba(167,139,250,.35);
+  --blue:#4f8ef7;   --blue-bg:rgba(79,142,247,.13);   --blue-b:rgba(79,142,247,.35);
+  --amber:#fbbf24;  --amber-bg:rgba(251,191,36,.11);  --amber-b:rgba(251,191,36,.32);
+  --gray:#888780;   --gray-bg:rgba(136,135,128,.1);   --gray-b:rgba(136,135,128,.28);
+  --green:#34d399;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'IBM Plex Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);
+     padding:28px 20px 56px;font-size:14px;line-height:1.6}
+h1{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.12em;
+   text-transform:uppercase;color:var(--blue);margin-bottom:4px}
+.sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:28px}
+
+/* diagram wrapper */
+.diagram{width:100%;overflow-x:auto}
+svg text{font-family:'IBM Plex Mono',monospace}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px;
+        padding-top:16px;border-top:1px solid var(--border)}
+.li{display:flex;align-items:center;gap:6px;font-family:var(--mono);
+    font-size:10px;color:var(--muted)}
+.ld{width:10px;height:10px;border-radius:2px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<h1>DataLoader → Dataset — call graph</h1>
+<p class="sub">one iteration of the training loop · battery RUL context</p>
+
+<div class="diagram">
+<svg width="100%" viewBox="0 0 700 860" role="img">
+<title>How PyTorch DataLoader uses Dataset</title>
+<desc>Sequence diagram showing DataLoader orchestrating Sampler, Dataset __getitem__, and collate_fn</desc>
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#4f8ef7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- ── Column headers ──────────────────────────────── -->
+<!-- Training loop -->
+<rect x="20" y="20" width="120" height="32" rx="5" fill="rgba(136,135,128,.12)" stroke="rgba(136,135,128,.3)" stroke-width="0.5"/>
+<text x="80" y="36" text-anchor="middle" dominant-baseline="central" fill="#c8d0e0" font-size="12" font-weight="600">Training loop</text>
+
+<!-- DataLoader -->
+<rect x="170" y="20" width="130" height="32" rx="5" fill="rgba(167,139,250,.14)" stroke="rgba(167,139,250,.38)" stroke-width="0.5"/>
+<text x="235" y="36" text-anchor="middle" dominant-baseline="central" fill="#c4affe" font-size="12" font-weight="600">DataLoader</text>
+
+<!-- Sampler -->
+<rect x="330" y="20" width="110" height="32" rx="5" fill="rgba(251,191,36,.12)" stroke="rgba(251,191,36,.32)" stroke-width="0.5"/>
+<text x="385" y="36" text-anchor="middle" dominant-baseline="central" fill="#fcd56b" font-size="12" font-weight="600">Sampler</text>
+
+<!-- Dataset / collate -->
+<rect x="468" y="20" width="192" height="32" rx="5" fill="rgba(79,142,247,.14)" stroke="rgba(79,142,247,.38)" stroke-width="0.5"/>
+<text x="564" y="36" text-anchor="middle" dominant-baseline="central" fill="#93bbff" font-size="12" font-weight="600">Dataset / collate_fn</text>
+
+<!-- ── Lifelines ──────────────────────────────────────── -->
+<line x1="80"  y1="52" x2="80"  y2="800" stroke="#252a35" stroke-width="0.5" stroke-dasharray="4 4"/>
+<line x1="235" y1="52" x2="235" y2="800" stroke="#252a35" stroke-width="0.5" stroke-dasharray="4 4"/>
+<line x1="385" y1="52" x2="385" y2="800" stroke="#252a35" stroke-width="0.5" stroke-dasharray="4 4"/>
+<line x1="564" y1="52" x2="564" y2="800" stroke="#252a35" stroke-width="0.5" stroke-dasharray="4 4"/>
+
+<!-- ── Step 1: for batch in loader ───────────────────── -->
+<rect x="24" y="74" width="112" height="34" rx="5" fill="rgba(136,135,128,.12)" stroke="rgba(136,135,128,.28)" stroke-width="0.5"/>
+<text x="80" y="88" text-anchor="middle" dominant-baseline="central" fill="#c8d0e0" font-size="11" font-weight="600">for batch in loader</text>
+<text x="80" y="101" text-anchor="middle" dominant-baseline="central" fill="#888780" font-size="10">iter starts</text>
+
+<line x1="136" y1="91" x2="168" y2="91" stroke="#888780" stroke-width="1" marker-end="url(#arrg)"/>
+<text x="152" y="86" text-anchor="middle" fill="#5a6480" font-size="9">__iter__</text>
+
+<!-- ── Step 2: DataLoader.__iter__ → Sampler ─────────── -->
+<rect x="174" y="74" width="122" height="34" rx="5" fill="rgba(167,139,250,.12)" stroke="rgba(167,139,250,.3)" stroke-width="0.5"/>
+<text x="235" y="88" text-anchor="middle" dominant-baseline="central" fill="#c4affe" font-size="11" font-weight="600">__iter__</text>
+<text x="235" y="101" text-anchor="middle" dominant-baseline="central" fill="#a78bfa" font-size="10">creates fetch worker</text>
+
+<line x1="297" y1="91" x2="328" y2="91" stroke="#888780" stroke-width="1" marker-end="url(#arrg)"/>
+<text x="312" y="86" text-anchor="middle" fill="#5a6480" font-size="9">init sampler</text>
+
+<!-- ── Step 3: Sampler shuffles ───────────────────────── -->
+<rect x="334" y="74" width="102" height="34" rx="5" fill="rgba(251,191,36,.1)" stroke="rgba(251,191,36,.28)" stroke-width="0.5"/>
+<text x="385" y="88" text-anchor="middle" dominant-baseline="central" fill="#fcd56b" font-size="11" font-weight="600">shuffle indices</text>
+<text x="385" y="101" text-anchor="middle" dominant-baseline="central" fill="#fbbf24" font-size="10">[0 … N-1] → random order</text>
+
+<!-- ── Step 4: BatchSampler groups ───────────────────── -->
+<text x="235" y="128" text-anchor="middle" fill="#5a6480" font-size="10">batch_size indices grouped</text>
+<rect x="174" y="136" width="122" height="34" rx="5" fill="rgba(167,139,250,.12)" stroke="rgba(167,139,250,.3)" stroke-width="0.5"/>
+<text x="235" y="150" text-anchor="middle" dominant-baseline="central" fill="#c4affe" font-size="11" font-weight="600">BatchSampler</text>
+<text x="235" y="163" text-anchor="middle" dominant-baseline="central" fill="#a78bfa" font-size="10">yields [312, 7, 88, 201 …]</text>
+
+<!-- curved return from Sampler -->
+<path d="M385 108 L385 153 L296 153" fill="none" stroke="#888780" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#arrg)"/>
+
+<!-- ── Step 5: fetch loop starts ─────────────────────── -->
+<text x="235" y="188" text-anchor="middle" fill="#5a6480" font-size="10">for idx in [312, 7, 88, 201 …]</text>
+<rect x="174" y="196" width="122" height="34" rx="5" fill="rgba(167,139,250,.12)" stroke="rgba(167,139,250,.3)" stroke-width="0.5"/>
+<text x="235" y="210" text-anchor="middle" dominant-baseline="central" fill="#c4affe" font-size="11" font-weight="600">fetch loop</text>
+<text x="235" y="223" text-anchor="middle" dominant-baseline="central" fill="#a78bfa" font-size="10">calls dataset[idx] per sample</text>
+
+<!-- arrow to __getitem__ -->
+<line x1="296" y1="213" x2="466" y2="213" stroke="#4f8ef7" stroke-width="1" marker-end="url(#arrb)"/>
+<text x="380" y="208" text-anchor="middle" fill="#4f8ef7" font-size="9">dataset[idx]</text>
+
+<!-- ── Step 6: __getitem__ ───────────────────────────── -->
+<rect x="470" y="196" width="188" height="54" rx="5" fill="rgba(79,142,247,.12)" stroke="rgba(79,142,247,.32)" stroke-width="0.5"/>
+<text x="564" y="211" text-anchor="middle" dominant-baseline="central" fill="#93bbff" font-size="11" font-weight="600">__getitem__(idx)</text>
+<text x="564" y="226" text-anchor="middle" dominant-baseline="central" fill="#6eaaf5" font-size="10">1. look up _index[idx]</text>
+<text x="564" y="240" text-anchor="middle" dominant-baseline="central" fill="#6eaaf5" font-size="10">2. slice numpy → causal norm → tensor</text>
+
+<!-- return RULSample -->
+<path d="M564 250 L564 272 L235 272 L235 250" fill="none" stroke="#4f8ef7" stroke-width="0.9" marker-end="url(#arrb)"/>
+<text x="400" y="268" text-anchor="middle" fill="#4f8ef7" font-size="9">RULSample(x_seq, x_slow, x_cats, label, censored)</text>
+
+<!-- repeat brace -->
+<line x1="155" y1="196" x2="151" y2="196" stroke="#5a6480" stroke-width="0.5"/>
+<line x1="151" y1="196" x2="151" y2="250" stroke="#5a6480" stroke-width="0.5"/>
+<line x1="151" y1="250" x2="155" y2="250" stroke="#5a6480" stroke-width="0.5"/>
+<text x="148" y="220" text-anchor="end" fill="#5a6480" font-size="9">× batch_size</text>
+
+<!-- ── num_workers annotation ─────────────────────────── -->
+<rect x="330" y="280" width="262" height="42" rx="5" fill="rgba(136,135,128,.07)" stroke="rgba(136,135,128,.2)" stroke-width="0.5" stroke-dasharray="4 3"/>
+<text x="461" y="295" text-anchor="middle" dominant-baseline="central" fill="#888780" font-size="10" font-weight="600">num_workers &gt; 0: parallel fetch</text>
+<text x="461" y="311" text-anchor="middle" dominant-baseline="central" fill="#5a6480" font-size="9">each worker process calls __getitem__ independently</text>
+
+<!-- ── Step 7: list of samples ───────────────────────── -->
+<text x="235" y="344" text-anchor="middle" fill="#5a6480" font-size="10">list of batch_size RULSamples ready</text>
+
+<!-- arrow to collate_fn -->
+<line x1="296" y1="358" x2="466" y2="358" stroke="#4f8ef7" stroke-width="1" marker-end="url(#arrb)"/>
+<text x="380" y="352" text-anchor="middle" fill="#4f8ef7" font-size="9">collate_fn(samples)</text>
+
+<!-- ── Step 8: collate_fn ────────────────────────────── -->
+<rect x="470" y="340" width="188" height="64" rx="5" fill="rgba(79,142,247,.12)" stroke="rgba(79,142,247,.32)" stroke-width="0.5"/>
+<text x="564" y="355" text-anchor="middle" dominant-baseline="central" fill="#93bbff" font-size="11" font-weight="600">collate_fn(samples)</text>
+<text x="564" y="370" text-anchor="middle" dominant-baseline="central" fill="#6eaaf5" font-size="10">pad x_seq to T_max</text>
+<text x="564" y="384" text-anchor="middle" dominant-baseline="central" fill="#6eaaf5" font-size="10">stack x_slow, x_cats, label</text>
+<text x="564" y="398" text-anchor="middle" dominant-baseline="central" fill="#6eaaf5" font-size="10">build padding_mask (bool)</text>
+
+<!-- return batch dict -->
+<path d="M564 404 L564 426 L235 426 L235 404" fill="none" stroke="#4f8ef7" stroke-width="0.9" marker-end="url(#arrb)"/>
+<text x="400" y="422" text-anchor="middle" fill="#4f8ef7" font-size="9">batch dict: {x_seq(B,T,F), x_slow(B,F), label(B,), censored(B,), padding_mask(B,T)}</text>
+
+<!-- ── Step 9: pin_memory ────────────────────────────── -->
+<text x="235" y="448" text-anchor="middle" fill="#5a6480" font-size="10">if pin_memory=True</text>
+<rect x="174" y="456" width="122" height="34" rx="5" fill="rgba(167,139,250,.12)" stroke="rgba(167,139,250,.3)" stroke-width="0.5"/>
+<text x="235" y="470" text-anchor="middle" dominant-baseline="central" fill="#c4affe" font-size="11" font-weight="600">pin_memory</text>
+<text x="235" y="483" text-anchor="middle" dominant-baseline="central" fill="#a78bfa" font-size="10">copy tensors → page-locked RAM</text>
+
+<!-- ── Step 10: __next__ returns ─────────────────────── -->
+<text x="235" y="508" text-anchor="middle" fill="#5a6480" font-size="10">yield to caller</text>
+<rect x="174" y="516" width="122" height="34" rx="5" fill="rgba(167,139,250,.12)" stroke="rgba(167,139,250,.3)" stroke-width="0.5"/>
+<text x="235" y="530" text-anchor="middle" dominant-baseline="central" fill="#c4affe" font-size="11" font-weight="600">__next__</text>
+<text x="235" y="543" text-anchor="middle" dominant-baseline="central" fill="#a78bfa" font-size="10">returns batch dict</text>
+
+<line x1="174" y1="533" x2="136" y2="533" stroke="#888780" stroke-width="1" marker-end="url(#arrg)"/>
+<text x="155" y="527" text-anchor="middle" fill="#5a6480" font-size="9">batch</text>
+
+<!-- ── Step 11: training loop ────────────────────────── -->
+<rect x="24" y="516" width="112" height="54" rx="5" fill="rgba(136,135,128,.12)" stroke="rgba(136,135,128,.28)" stroke-width="0.5"/>
+<text x="80" y="531" text-anchor="middle" dominant-baseline="central" fill="#c8d0e0" font-size="11" font-weight="600">use batch</text>
+<text x="80" y="547" text-anchor="middle" dominant-baseline="central" fill="#888780" font-size="10">model(x_seq.to(device))</text>
+<text x="80" y="560" text-anchor="middle" dominant-baseline="central" fill="#888780" font-size="10">loss.backward()</text>
+
+<!-- ── Prefetch annotation ───────────────────────────── -->
+<rect x="20" y="592" width="660" height="50" rx="5" fill="none" stroke="#2e3544" stroke-width="0.5" stroke-dasharray="5 3"/>
+<text x="350" y="610" text-anchor="middle" fill="#5a6480" font-size="10">while model runs forward + backward on batch N  ↑</text>
+<text x="350" y="628" text-anchor="middle" fill="#5a6480" font-size="10">workers are already fetching batch N+1 in background (prefetch_factor=2 by default)</text>
+
+<!-- ── Contract box ──────────────────────────────────── -->
+<rect x="20" y="658" width="660" height="90" rx="5" fill="rgba(79,142,247,.05)" stroke="rgba(79,142,247,.2)" stroke-width="0.5"/>
+<text x="36" y="675" dominant-baseline="central" fill="#93bbff" font-size="11" font-weight="600">Dataset contract — the only two methods DataLoader ever calls:</text>
+<text x="36" y="698" dominant-baseline="central" fill="#6eaaf5" font-size="10" font-family="IBM Plex Mono">__len__(self)            → int     Sampler needs this to know index range [0, N)</text>
+<text x="36" y="716" dominant-baseline="central" fill="#6eaaf5" font-size="10" font-family="IBM Plex Mono">__getitem__(self, idx)   → any     called once per sample; must return tensors</text>
+<text x="36" y="734" dominant-baseline="central" fill="#5a6480" font-size="10">DataLoader never reads .records, .ts_features, or any other attribute — only these two methods.</text>
+</svg>
+</div>
+
+<div class="legend">
+  <div class="li"><div class="ld" style="background:rgba(167,139,250,.5)"></div>DataLoader internals</div>
+  <div class="li"><div class="ld" style="background:rgba(251,191,36,.5)"></div>Sampler</div>
+  <div class="li"><div class="ld" style="background:rgba(79,142,247,.5)"></div>Dataset / collate_fn</div>
+  <div class="li"><div class="ld" style="background:rgba(136,135,128,.4)"></div>Training loop</div>
+</div>
+</body>
+</html>
